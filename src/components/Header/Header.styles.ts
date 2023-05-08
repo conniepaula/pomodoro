@@ -19,10 +19,10 @@ export const HeaderContainer = styled.header`
       border-bottom: 3px solid transparent;
       transition: color, border-bottom 0.2s ease-in-out;
       &:hover {
-        border-bottom: 3px solid ${({ theme }) => theme.primary.main};
+        border-bottom: 3px solid ${({ theme }) => theme.secondary.main};
       }
       &.active {
-        color: ${({ theme }) => theme.primary.light};
+        color: ${({ theme }) => theme.secondary.light};
       }
     }
   }

@@ -16,6 +16,7 @@ body {
     font-family: 'Roboto', sans-serif;
     color: ${({ theme }) => theme.text.main};
     background: ${({ theme }) => theme.background};
+    --webkit-font-smoothing: antialiased;
 }
 
 body, input, button, textarea {
