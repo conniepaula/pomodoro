@@ -1,3 +1,5 @@
+import { produce } from "immer";
+
 export enum TaskCycleActionTypes {
   CREATE_NEW_TASK_CYCLE = "CREATE_NEW_TASK_CYCLE",
   STOP_TASK_CYCLE = "STOP_TASK_CYCLE",
@@ -36,35 +38,34 @@ export default function taskReducer(
 ) {
   switch (action.type) {
     case TaskCycleActionTypes.CREATE_NEW_TASK_CYCLE:
-      return {
-        ...state,
-        taskCycles: [...state.taskCycles, action.payload.newTask],
-        activeTaskId: action.payload.newTask.id,
-      };
-    case TaskCycleActionTypes.STOP_TASK_CYCLE:
-      return {
-        ...state,
-        taskCycles: state.taskCycles.map((task) => {
-          if (task.id === state.activeTaskId) {
-            return { ...task, stopDate: new Date() };
-          } else {
-            return task;
-          }
-        }),
-        activeTaskId: null,
-      };
-    case TaskCycleActionTypes.SET_TASK_AS_DONE:
-      return {
-        ...state,
-        taskCycles: state.taskCycles.map((task) => {
-          if (task.id === state.activeTaskId) {
-            return { ...task, endDate: new Date() };
-          } else {
-            return task;
-          }
-        }),
-        activeTaskId: null,
-      };
+      return produce(state, (draftState) => {
+        draftState.taskCycles.push(action.payload.newTask);
+        draftState.activeTaskId = action.payload.newTask.id;
+      });
+    case TaskCycleActionTypes.STOP_TASK_CYCLE: {
+      const taskIndex = state.taskCycles.findIndex(
+        (task) => task.id === state.activeTaskId
+      );
+      if (taskIndex < 0) {
+        return state;
+      }
+      return produce(state, (draftState) => {
+        draftState.activeTaskId = null;
+        draftState.taskCycles[taskIndex].stopDate = new Date();
+      });
+    }
+    case TaskCycleActionTypes.SET_TASK_AS_DONE: {
+      const taskIndex = state.taskCycles.findIndex(
+        (task) => task.id === state.activeTaskId
+      );
+      if (taskIndex < 0) {
+        return state;
+      }
+      return produce(state, (draftState) => {
+        draftState.activeTaskId = null;
+        draftState.taskCycles[taskIndex].endDate = new Date();
+      });
+    }
     default:
       throw new Error();
   }
