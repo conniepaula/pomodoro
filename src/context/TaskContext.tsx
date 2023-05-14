@@ -16,7 +16,7 @@ interface TaskContextType {
   secondsPassed: number;
   setSecondsPassed: React.Dispatch<React.SetStateAction<number>>;
   setCurrentTaskAsFinished: () => void;
-  handleCreateNewTaskCycle: (data: CreateNewTaskCycle) => void;
+  createNewTaskCycle: (data: CreateNewTaskCycle) => void;
   handleStopTaskCycle: () => void;
 }
 
@@ -41,7 +41,7 @@ function TaskContextProvider(props: TaskContextProviderProps) {
     (taskCycle) => taskCycle.id === activeTaskId
   );
 
-  const handleCreateNewTaskCycle = (data: CreateNewTaskCycle) => {
+  const createNewTaskCycle = (data: CreateNewTaskCycle) => {
     const taskId = String(new Date().getTime());
 
     const newTaskCycle: TaskCycle = {
@@ -54,8 +54,6 @@ function TaskContextProvider(props: TaskContextProviderProps) {
     setTaskCycles((prevTaskCycles) => [...prevTaskCycles, newTaskCycle]);
     setActiveTaskId(taskId);
     setSecondsPassed(0);
-
-    // reset();
   };
 
   const handleStopTaskCycle = () => {
@@ -93,7 +91,7 @@ function TaskContextProvider(props: TaskContextProviderProps) {
         setCurrentTaskAsFinished,
         secondsPassed,
         setSecondsPassed,
-        handleCreateNewTaskCycle,
+        createNewTaskCycle,
         handleStopTaskCycle,
       }}
     >

@@ -1,9 +1,8 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import { PlayIcon, StopIcon } from "@radix-ui/react-icons";
 import { FormProvider, useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { differenceInSeconds } from "date-fns";
 
 import {
   HomeContainer,
@@ -12,7 +11,7 @@ import {
 } from "./Home.styles";
 import Form from "../../components/Form/Form";
 import Timer from "../../components/Timer/Timer";
-import TaskContextProvider, { TaskContext } from "../../context/TaskContext";
+import { TaskContext } from "../../context/TaskContext";
 
 const newTaskValidationSchema = z.object({
   task: z.string().min(1, "Give your task a name"),
@@ -25,7 +24,7 @@ const newTaskValidationSchema = z.object({
 type TaskSchema = z.infer<typeof newTaskValidationSchema>;
 
 function Home() {
-  const { activeTask, handleCreateNewTaskCycle, handleStopTaskCycle } =
+  const { activeTask, createNewTaskCycle, handleStopTaskCycle } =
     useContext(TaskContext);
 
   const newTaskCycleForm = useForm<TaskSchema>({
@@ -40,6 +39,11 @@ function Home() {
 
   const task = watch("task");
   const isSubmitDisabled = !task;
+
+  const handleCreateNewTaskCycle = (data: TaskSchema) => {
+    createNewTaskCycle(data);
+    reset();
+  };
 
   return (
     <HomeContainer>
