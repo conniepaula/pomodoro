@@ -2,7 +2,7 @@ import { useContext } from "react";
 import { useFormContext } from "react-hook-form";
 
 import { DurationInput, FormContainer, TaskInput } from "./Form.styles";
-import { TaskContext } from "../../pages/Home/Home";
+import { TaskContext } from "../../context/TaskContext";
 
 function Form() {
   const { activeTask } = useContext(TaskContext);

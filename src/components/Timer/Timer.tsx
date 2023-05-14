@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { differenceInSeconds, set } from "date-fns";
 
 import { TimerContainer, Colon } from "./Timer.styles";
-import { TaskContext } from "../../pages/Home/Home";
+import { TaskContext } from "../../context/TaskContext";
 
 function Timer() {
   const {

@@ -1,3 +1,5 @@
+import { useContext } from "react";
+import { TaskContext } from "../../context/TaskContext";
 import { HistoryContainer, HistoryList, Status } from "./History.styles";
 
 type Task = {
@@ -59,6 +61,7 @@ const tasks: Array<Task> = [
 ];
 
 function History() {
+  const { taskCycles } = useContext(TaskContext);
   return (
     <HistoryContainer>
       <h1>Task History</h1>
