@@ -8,7 +8,7 @@ function Timer() {
   const {
     activeTask,
     activeTaskId,
-    setCurrentTaskAsFinished,
+    setCurrentTaskAsDone,
     secondsPassed,
     setSecondsPassed,
   } = useContext(TaskContext);
@@ -29,7 +29,7 @@ function Timer() {
           activeTask.startDate
         );
         if (diffInSeconds >= durationInSeconds) {
-          setCurrentTaskAsFinished();
+          setCurrentTaskAsDone();
           setSecondsPassed(durationInSeconds);
           clearInterval(interval);
         } else {
@@ -44,7 +44,7 @@ function Timer() {
     activeTask,
     durationInSeconds,
     activeTaskId,
-    setCurrentTaskAsFinished,
+    setCurrentTaskAsDone,
     setSecondsPassed,
   ]);
 

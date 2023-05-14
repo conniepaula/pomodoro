@@ -1,13 +1,11 @@
-import { ReactNode, createContext, useState } from "react";
-
-interface TaskCycle {
-  id: string;
-  task: string;
-  duration: number;
-  startDate: Date;
-  endDate?: Date;
-  stopDate?: Date;
-}
+import { ReactNode, createContext, useReducer, useState } from "react";
+import taskReducer, {
+  TaskCycle,
+  TaskCycleAction,
+  TaskCycleActionTypes,
+  TaskCycleState,
+  initialState,
+} from "../reducers/TaskReducer";
 
 interface TaskContextType {
   taskCycles: Array<TaskCycle>;
@@ -15,7 +13,7 @@ interface TaskContextType {
   activeTaskId: string | null;
   secondsPassed: number;
   setSecondsPassed: React.Dispatch<React.SetStateAction<number>>;
-  setCurrentTaskAsFinished: () => void;
+  setCurrentTaskAsDone: () => void;
   createNewTaskCycle: (data: CreateNewTaskCycle) => void;
   handleStopTaskCycle: () => void;
 }
@@ -33,8 +31,10 @@ interface TaskContextProviderProps {
 
 function TaskContextProvider(props: TaskContextProviderProps) {
   const { children } = props;
-  const [taskCycles, setTaskCycles] = useState<Array<TaskCycle>>([]);
-  const [activeTaskId, setActiveTaskId] = useState<string | null>(null);
+  const [state, dispatch] = useReducer<
+    (state: TaskCycleState, action: TaskCycleAction) => TaskCycleState
+  >(taskReducer, { ...initialState });
+  const { taskCycles, activeTaskId } = state;
   const [secondsPassed, setSecondsPassed] = useState<number>(0);
 
   const activeTask = taskCycles.find(
@@ -44,42 +44,25 @@ function TaskContextProvider(props: TaskContextProviderProps) {
   const createNewTaskCycle = (data: CreateNewTaskCycle) => {
     const taskId = String(new Date().getTime());
 
-    const newTaskCycle: TaskCycle = {
+    const newTask: TaskCycle = {
       id: taskId,
       task: data.task,
       duration: data.duration,
       startDate: new Date(),
     };
 
-    setTaskCycles((prevTaskCycles) => [...prevTaskCycles, newTaskCycle]);
-    setActiveTaskId(taskId);
-    setSecondsPassed(0);
+    dispatch({
+      type: TaskCycleActionTypes.CREATE_NEW_TASK_CYCLE,
+      payload: { newTask },
+    });
   };
 
   const handleStopTaskCycle = () => {
-    setTaskCycles((prevTaskCycles) =>
-      prevTaskCycles.map((task) => {
-        if (task.id === activeTaskId) {
-          return { ...task, stopDate: new Date() };
-        } else {
-          return task;
-        }
-      })
-    );
-
-    setActiveTaskId(null);
+    dispatch({ type: TaskCycleActionTypes.STOP_TASK_CYCLE });
   };
 
-  const setCurrentTaskAsFinished = () => {
-    setTaskCycles((prevTaskCycles) =>
-      prevTaskCycles.map((task) => {
-        if (task.id === activeTaskId) {
-          return { ...task, endDate: new Date() };
-        } else {
-          return task;
-        }
-      })
-    );
+  const setCurrentTaskAsDone = () => {
+    dispatch({ type: TaskCycleActionTypes.SET_TASK_AS_DONE });
   };
 
   return (
@@ -88,7 +71,7 @@ function TaskContextProvider(props: TaskContextProviderProps) {
         taskCycles,
         activeTask,
         activeTaskId,
-        setCurrentTaskAsFinished,
+        setCurrentTaskAsDone,
         secondsPassed,
         setSecondsPassed,
         createNewTaskCycle,
