@@ -1,11 +1,18 @@
-import { ReactNode, createContext, useReducer, useState } from "react";
+import {
+  ReactNode,
+  createContext,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import taskReducer, {
   TaskCycle,
-  TaskCycleAction,
   TaskCycleActionTypes,
   TaskCycleState,
   initialState,
 } from "../reducers/TaskReducer";
+import useLocalStorage from "../hooks/useLocalStorage";
+import { differenceInSeconds, set } from "date-fns";
 
 interface TaskContextType {
   taskCycles: Array<TaskCycle>;
@@ -31,15 +38,34 @@ interface TaskContextProviderProps {
 
 function TaskContextProvider(props: TaskContextProviderProps) {
   const { children } = props;
-  const [state, dispatch] = useReducer<
-    (state: TaskCycleState, action: TaskCycleAction) => TaskCycleState
-  >(taskReducer, { ...initialState });
+  const [storedTaskCyclesValue, setStoredTaskCyclesValue] = useLocalStorage({
+    key: "@pomodoro-timer-task-cycles-1.0.0",
+    initialValue: initialState as TaskCycleState,
+  });
+  const [state, dispatch] = useReducer(
+    taskReducer,
+    {
+      ...initialState,
+    },
+    (initialState) => {
+      if (storedTaskCyclesValue) {
+        return storedTaskCyclesValue;
+      }
+      return initialState;
+    }
+  );
   const { taskCycles, activeTaskId } = state;
-  const [secondsPassed, setSecondsPassed] = useState<number>(0);
 
   const activeTask = taskCycles.find(
     (taskCycle) => taskCycle.id === activeTaskId
   );
+
+  const [secondsPassed, setSecondsPassed] = useState<number>(() => {
+    if (activeTask) {
+      return differenceInSeconds(new Date(), new Date(activeTask.startDate));
+    }
+    return 0;
+  });
 
   const createNewTaskCycle = (data: CreateNewTaskCycle) => {
     const taskId = String(new Date().getTime());
@@ -64,6 +90,10 @@ function TaskContextProvider(props: TaskContextProviderProps) {
   const setCurrentTaskAsDone = () => {
     dispatch({ type: TaskCycleActionTypes.SET_TASK_AS_DONE });
   };
+
+  useEffect(() => {
+    setStoredTaskCyclesValue(state);
+  }, [state, setStoredTaskCyclesValue]);
 
   return (
     <TaskContext.Provider

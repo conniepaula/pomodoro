@@ -26,7 +26,7 @@ function Timer() {
       interval = setInterval(() => {
         const diffInSeconds = differenceInSeconds(
           new Date(),
-          activeTask.startDate
+          new Date(activeTask.startDate)
         );
         if (diffInSeconds >= durationInSeconds) {
           setCurrentTaskAsDone();
